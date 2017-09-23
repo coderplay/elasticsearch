@@ -160,6 +160,8 @@ public class ThreadPool extends AbstractComponent implements Closeable {
     public static Setting<TimeValue> ESTIMATED_TIME_INTERVAL_SETTING =
         Setting.timeSetting("thread_pool.estimated_time_interval", TimeValue.timeValueMillis(200), Setting.Property.NodeScope);
 
+    private final int bulkIndexingThreads;
+
     public ThreadPool(final Settings settings, final ExecutorBuilder<?>... customBuilders) {
         super(settings);
 
@@ -193,6 +195,14 @@ public class ThreadPool extends AbstractComponent implements Closeable {
             }
             builders.put(builder.name(), builder);
         }
+
+        bulkIndexingThreads = settings.getAsInt("thread_pool.bulkindex.size", 64);
+        int bulkIndexingQueueSize = settings.getAsInt("thread_pool.bulkindex.queue_size", 10240);
+        for (int i = 0; i < bulkIndexingThreads; i++) {
+            String threadName = "bulkindexing-" + i;
+            builders.put(threadName, new SingleThreadExecutorBuilder(settings, threadName,bulkIndexingQueueSize));
+        }
+
         this.builders = Collections.unmodifiableMap(builders);
 
         threadContext = new ThreadContext(settings);
@@ -327,6 +337,11 @@ public class ThreadPool extends AbstractComponent implements Closeable {
             throw new IllegalArgumentException("no executor service found for [" + name + "]");
         }
         return holder.executor();
+    }
+
+    public ExecutorService bulkindexing(int id) {
+        int slot = id % bulkIndexingThreads;
+        return executor("bulkindexing-" + slot);
     }
 
     public ScheduledExecutorService scheduler() {

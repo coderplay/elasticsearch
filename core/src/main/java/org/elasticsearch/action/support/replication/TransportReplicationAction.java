@@ -272,7 +272,9 @@ public abstract class TransportReplicationAction<
 
         @Override
         public void messageReceived(ConcreteShardRequest<Request> request, TransportChannel channel, Task task) {
-            new AsyncPrimaryAction(request.request, request.targetAllocationID, request.primaryTerm, channel, (ReplicationTask) task).run();
+            final ShardId shardId = request.request.shardId;
+            threadPool.bulkindexing(shardId.getId()).execute(
+                new AsyncPrimaryAction(request.request, request.targetAllocationID, request.primaryTerm, channel, (ReplicationTask) task));
         }
     }
 
