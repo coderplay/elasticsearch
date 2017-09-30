@@ -48,11 +48,7 @@ public abstract class ExecutorBuilder<U extends ExecutorBuilder.ExecutorSettings
     }
 
     protected int applyHardSizeLimit(final Settings settings, final String name) {
-        if (name.equals(ThreadPool.Names.BULK) || name.equals(ThreadPool.Names.INDEX)) {
-            return 1 + EsExecutors.numberOfProcessors(settings);
-        } else {
             return Integer.MAX_VALUE;
-        }
     }
 
     /**
