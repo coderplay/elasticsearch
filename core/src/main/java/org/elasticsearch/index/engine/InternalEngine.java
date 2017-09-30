@@ -649,6 +649,7 @@ public class InternalEngine extends Engine {
                 }
                 if (index.origin() != Operation.Origin.LOCAL_TRANSLOG_RECOVERY) {
                     final Translog.Location location;
+                    /*
                     if (indexResult.hasFailure() == false) {
                         location = translog.add(new Translog.Index(index, indexResult));
                     } else if (indexResult.getSeqNo() != SequenceNumbersService.UNASSIGNED_SEQ_NO) {
@@ -657,7 +658,7 @@ public class InternalEngine extends Engine {
                     } else {
                         location = null;
                     }
-                    indexResult.setTranslogLocation(location);
+                    indexResult.setTranslogLocation(location);*/
                 }
                 if (indexResult.getSeqNo() != SequenceNumbersService.UNASSIGNED_SEQ_NO) {
                     seqNoService().markSeqNoAsCompleted(indexResult.getSeqNo());
